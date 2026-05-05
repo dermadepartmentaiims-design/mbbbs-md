@@ -1,8 +1,28 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const CONSULTATION_PATH = `${BASE_URL}/consultations`;
+const REQUEST_TIMEOUT_MS = 30000;
 
 async function request(endpoint, options = {}) {
-  const response = await fetch(`${CONSULTATION_PATH}${endpoint}`, options);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response;
+
+  try {
+    response = await fetch(`${CONSULTATION_PATH}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Server is taking too long to respond. Please wait a minute and try again.');
+    }
+
+    throw new Error('Unable to reach the server. Please check if the backend is live.');
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const body = isJson ? await response.json() : null;
 

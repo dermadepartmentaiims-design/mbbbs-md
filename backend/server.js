@@ -6,7 +6,6 @@ import consultationRoutes from "./routes/consultationRoutes.js";
 
 
 dotenv.config();
-connectDB();
 
 const app = express();
 const allowedOrigins = [
@@ -42,6 +41,8 @@ app.get("/", (req, res) => {
 // Server
 const PORT = process.env.PORT || 5002;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
