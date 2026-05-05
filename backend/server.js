@@ -16,6 +16,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   ...(process.env.CORS_ORIGINS || "").split(","),
 ]
+  .filter(Boolean)
   .map((origin) => origin.trim())
   .filter(Boolean);
 
